@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(uuid())
+  password   String
+  email      String    @unique
+  firstname  String?
+  lastname   String?
+  blocked_at DateTime?
+  updated_at DateTime  @updatedAt
+  created_at DateTime  @default(now())
+  Tokens     Token[]
+  LogBoook   LogBook[]
+}
+
+model Token {
+  id         String   @id @default(uuid())
+  user_id    String
+  type       String
+  token      String
+  updated_at DateTime @updatedAt @default(now())
+  created_at DateTime @default(now())
+  User       User     @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, type])
+}
+
+model Device {
+  id            String    @id @default(uuid())
+  name          String
+  serial_number String?
+  LogBook       LogBook[]
+}
+
+model LogBook {
+  id              String   @id @default(uuid())
+  start           DateTime
+  end             DateTime
+  is_night_flight Boolean  @default(false)
+  device_id       String
+  type            String
+  location        String
+  lat             Int?
+  lng             Int?
+  notes           String
+  user_id         String
+  updated_at      DateTime @updatedAt
+  created_at      DateTime @default(now())
+  User            User     @relation(fields: [user_id], references: [id])
+  Device          Device   @relation(fields: [device_id], references: [id])
+}

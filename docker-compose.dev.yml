@@ -1,0 +1,16 @@
+services:
+  nginx:
+    volumes:
+      - ./config/ssl:/etc/ssl:ro
+      - ./config/nginx/sites-dev:/etc/nginx/sites-enabled
+
+  app:
+    command: sh -c "npm i && npm run dev"
+
+  mailhog:
+    container_name: mailhog_app
+    image: mailhog/mailhog
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"

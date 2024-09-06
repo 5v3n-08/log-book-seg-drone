@@ -1,0 +1,41 @@
+services:
+  nginx:
+    image: nginx:1.15
+    working_dir: /var/www/html
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./app:/var/www/html/app
+      - ./config/nginx/includes:/etc/nginx/includes:ro
+      - ./config/nginx/auth:/etc/nginx/auth
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+    
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_DB=${DB_NAME}
+    networks:
+      - default
+
+  app:
+    ports:
+      - "24678:24678"
+    user: node
+    build:
+      dockerfile: Dockerfile
+      context: ./config/app
+    working_dir: /var/www/html/app
+    volumes:
+      - ./app:/var/www/html/app
+    command: sh -c "node .output/server/index.mjs"
+    stdin_open: true
+    tty: true
+    networks:
+      - default
