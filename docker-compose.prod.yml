@@ -5,4 +5,4 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
 
   app:
-    command: sh -c "node .output/server/index.mjs"
+    command: sh -c "npm run build && node .output/server/index.mjs"

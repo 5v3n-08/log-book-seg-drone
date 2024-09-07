@@ -2,7 +2,7 @@ import { User } from '@prisma/client'
 import { TRPCError, type inferAsyncReturnType } from '@trpc/server'
 import cookie, { CookieSerializeOptions } from 'cookie'
 import { NodeEventContext, type H3Event, type NodeIncomingMessage } from 'h3'
-import { decodeAccessToken, setAuhtenticationCookies } from '~/server/services/authentication/authentication.helper'
+import { decodeAccessToken, setAuthenticationCookies } from '~/server/services/authentication/authentication.helper'
 import { AuthenticationService } from '~/server/services/authentication/authentication.service'
 import { NoRefreshTokenError, UserBlockedError } from '~/server/services/error/error.helper'
 import { tryCatch, tryCatchAsync } from '~/services/utils/utils.helper'
@@ -20,8 +20,8 @@ export async function createContext(event: H3Event) {
   }
 
   return {
-    setAuhtenticationCookies: (accessToken: string, refreshToken: string) =>
-      setAuhtenticationCookies(event.node, accessToken, refreshToken),
+    setAuthenticationCookies: (accessToken: string, refreshToken: string) =>
+      setAuthenticationCookies(event.node, accessToken, refreshToken),
     getCookie: () => getCookie(event.node.req),
     user,
   }
@@ -37,7 +37,7 @@ const handleAuthenticatedUserCheck = async (node: NodeEventContext): Promise<Use
     }
     const authService = new AuthenticationService()
     const tokens = await authService.refreshAccessToken(refreshToken)
-    setAuhtenticationCookies(node, tokens.accessToken, tokens.refreshToken)
+    setAuthenticationCookies(node, tokens.accessToken, tokens.refreshToken)
     accessToken = tokens.accessToken
   }
 
@@ -53,7 +53,7 @@ const handleAuthenticatedUserCheck = async (node: NodeEventContext): Promise<Use
 
   const storedRefreshToken = user.Tokens.find((token) => token.type === 'refresh')
   if (storedRefreshToken && refreshToken !== storedRefreshToken.token) {
-    setAuhtenticationCookies(node, accessToken, storedRefreshToken.token)
+    setAuthenticationCookies(node, accessToken, storedRefreshToken.token)
   }
 
   return user

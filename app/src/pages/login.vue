@@ -19,6 +19,7 @@
             {{ errorMessage }}</v-alert
           >
           <v-btn @click="login" variant="tonal" block>Anmelden</v-btn>
+          <v-btn @click="register" variant="tonal" block>Registrieren</v-btn>
         </v-card-text>
       </v-card>
     </div>
@@ -49,6 +50,13 @@ const { setAuthUser } = useAuthUser()
 const email = ref<string>('')
 const password = ref<string>('')
 const errorMessage = ref<string>()
+
+const register = async () => {
+  errorMessage.value = undefined
+  const { error, result } = await tryCatchAsync(() =>
+    $client.user.register.mutate({ email: email.value, password: password.value })
+  )
+}
 
 const login = async () => {
   errorMessage.value = undefined

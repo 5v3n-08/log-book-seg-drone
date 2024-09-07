@@ -10,7 +10,6 @@
     "postinstall": "nuxt prepare",
     "server:migrate-dev": "npx prisma migrate dev"
   },
-  "prisma.schema": "./prisma/schema.prisma",
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@prisma/client": "^5.19.0",
@@ -18,15 +17,15 @@
     "@trpc/server": "^10.45.2",
     "@vueuse/core": "^11.0.3",
     "bcrypt": "^5.1.1",
+    "cookie": "^0.6.0",
+    "jsonwebtoken": "^9.0.2",
     "nuxt": "^3.13.0",
     "superjson": "^2.2.1",
     "trpc-nuxt": "^0.10.22",
+    "vite-plugin-vuetify": "^2.0.4",
     "vue": "^3.4.38",
     "vue-router": "^4.4.3",
-    "vite-plugin-vuetify": "^2.0.4",
-    "cookie": "^0.6.0",
-    "zod": "^3.23.8",
-    "jsonwebtoken": "^9.0.2"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
