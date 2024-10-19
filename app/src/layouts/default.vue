@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <v-app class="h-100">
-      <v-card class="h-100">
+      <v-card class="h-100" :rounded="false">
         <v-layout class="h-100">
           <v-app-bar color="#922217" prominent>
             <!-- <v-app-bar-nav-icon variant="text" @click.stop="isDrawerOpen = !isDrawerOpen"></v-app-bar-nav-icon> -->

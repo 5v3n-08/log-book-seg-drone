@@ -94,7 +94,7 @@ export const decodeAccessToken = (token: string): DecodedAccessToken => {
 export const setAuthenticationCookies = (node: NodeEventContext, accessToken: string, refreshToken: string) => {
   setCookieWithNode(node, 'accessToken', accessToken, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     path: '/',
     maxAge: 60 * 2,
   })

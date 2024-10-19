@@ -25,7 +25,7 @@ model Token {
   user_id    String
   type       String
   token      String
-  updated_at DateTime @updatedAt @default(now())
+  updated_at DateTime @default(now()) @updatedAt
   created_at DateTime @default(now())
   User       User     @relation(fields: [user_id], references: [id])
 
@@ -40,19 +40,22 @@ model Device {
 }
 
 model LogBook {
-  id              String   @id @default(uuid())
-  start           DateTime
-  end             DateTime
-  is_night_flight Boolean  @default(false)
-  device_id       String
-  type            String
-  location        String
-  lat             Int?
-  lng             Int?
-  notes           String
-  user_id         String
-  updated_at      DateTime @updatedAt
-  created_at      DateTime @default(now())
-  User            User     @relation(fields: [user_id], references: [id])
-  Device          Device   @relation(fields: [device_id], references: [id])
+  id                       String   @id @default(uuid())
+  start                    DateTime
+  end                      DateTime
+  operation                String
+  is_flight_mode_manuel     Boolean  @default(false)
+  is_flight_mode_automatic  Boolean  @default(false)
+  is_night_flight           Boolean  @default(false)
+  device_id                String
+  type                     String
+  location                 String
+  lat                      Int?
+  lng                      Int?
+  notes                    String
+  user_id                  String
+  updated_at               DateTime @updatedAt
+  created_at               DateTime @default(now())
+  User                     User     @relation(fields: [user_id], references: [id])
+  Device                   Device   @relation(fields: [device_id], references: [id])
 }

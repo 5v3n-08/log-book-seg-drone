@@ -4,7 +4,7 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 export default defineNuxtConfig({
   srcDir: './src',
   devtools: { enabled: true },
-  build: { transpile: ['trpc-nuxt', 'vuetify'] },
+  build: { transpile: ['trpc-nuxt', 'vuetify', '@vuepic/vue-datepicker'] },
 
   modules: [
     '@nuxt/eslint',
