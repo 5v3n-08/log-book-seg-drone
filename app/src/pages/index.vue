@@ -1,6 +1,7 @@
 <template>
   <NuxtLayout name="default" title="Logbuch">
     <v-fab class="fab" absolute color="success" icon="$plus" @click="createNewLog"></v-fab>
+    dfgh
   </NuxtLayout>
 </template>
 

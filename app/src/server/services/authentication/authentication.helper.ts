@@ -12,7 +12,7 @@ const ACCESS_TOKEN_EXPIRY = '1h'
 const REFRESH_TOKEN_SECRET = 'secret'
 const REFRESH_TOKEN_EXPIRY = '10d'
 
-export const generatePasswortHash = async (password: string): Promise<string> => {
+export const generatePasswordHash = async (password: string): Promise<string> => {
   return await bcrypt.hash(password, SALT_ROUNDS)
 }
 
@@ -91,10 +91,10 @@ export const decodeAccessToken = (token: string): DecodedAccessToken => {
   return decodedToken as DecodedAccessToken
 }
 
-export const setAuhtenticationCookies = (node: NodeEventContext, accessToken: string, refreshToken: string) => {
+export const setAuthenticationCookies = (node: NodeEventContext, accessToken: string, refreshToken: string) => {
   setCookieWithNode(node, 'accessToken', accessToken, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     path: '/',
     maxAge: 60 * 2,
   })
