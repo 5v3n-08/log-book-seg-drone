@@ -9,32 +9,22 @@
           </div>
           <v-text-field v-model="email" density="comfortable" label="E-Mail" class="mt-2"></v-text-field>
           <v-text-field
+            v-model="password"
             type="password"
             density="comfortable"
-            v-model="password"
             :min="4"
             label="Passwort"
           ></v-text-field>
           <v-alert v-if="errorMessage" density="comfortable" class="mb-4" type="error" variant="tonal">
             {{ errorMessage }}</v-alert
           >
-          <v-btn @click="login" variant="tonal" block>Anmelden</v-btn>
-          <v-btn @click="register" variant="tonal" block>Registrieren</v-btn>
+          <v-btn variant="tonal" block @click="login">Anmelden</v-btn>
+          <v-btn variant="tonal" block @click="register">Registrieren</v-btn>
         </v-card-text>
       </v-card>
     </div>
   </div>
 </template>
-
-<style lang="css" scoped>
-.bg-image {
-  position: absolute;
-  background-image: url(screensaver.jpg);
-  background-position: center;
-  height: 100%;
-  width: 100%;
-}
-</style>
 
 <script setup lang="ts">
 import { tryCatchAsync } from '~/services/utils/utils.helper'
@@ -77,3 +67,13 @@ const login = async () => {
   }
 }
 </script>
+
+<style lang="css" scoped>
+.bg-image {
+  position: absolute;
+  background-image: url(screensaver.jpg);
+  background-position: center;
+  height: 100%;
+  width: 100%;
+}
+</style>

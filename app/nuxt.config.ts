@@ -22,14 +22,6 @@ export default defineNuxtConfig({
 
   vite: {
     vue: { template: { transformAssetUrls } },
-    // server: {
-    //   hmr: {
-    //     clientPort: 80,
-    //     port: 24678,
-    //     path: 'hmr/',
-    //     //     protocol: 'ws',
-    //   },
-    // },
   },
 
   compatibilityDate: '2024-08-31',
