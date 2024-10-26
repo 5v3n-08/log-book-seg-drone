@@ -2,7 +2,7 @@ services:
   nginx:
     volumes:
       - ./config/nginx/sites-prod:/etc/nginx/sites-enabled
-      - /etc/letsencrypt:/etc/letsencrypt
+      # - /etc/letsencrypt:/etc/letsencrypt
 
   app:
     command: sh -c "npm run build && node .output/server/index.mjs"
