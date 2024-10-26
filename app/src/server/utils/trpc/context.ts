@@ -15,7 +15,6 @@ export type Context = inferAsyncReturnType<typeof createContext>
  */
 export async function createContext(event: H3Event) {
   const { result: user, error } = await tryCatchAsync(() => handleAuthenticatedUserCheck(event.node))
-  console.log(event.node.res.getHeaders())
   if (error) {
     throw error
   }
