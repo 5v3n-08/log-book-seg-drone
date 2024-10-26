@@ -20,6 +20,11 @@ export default defineNuxtConfig({
     },
   ],
 
+  runtimeConfig: {
+    DATABASE_URL: process.env.DATABASE_URL,
+    OPEN_ROUTE_SERVICE_TOKEN: process.env.OPEN_ROUTE_SERVICE_TOKEN,
+  },
+
   vite: {
     vue: { template: { transformAssetUrls } },
   },
