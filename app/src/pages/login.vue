@@ -15,11 +15,23 @@
             :min="4"
             label="Passwort"
           ></v-text-field>
+          <v-text-field
+            v-if="!isLoginMode"
+            v-model="passwordConfirm"
+            type="password"
+            density="comfortable"
+            :min="4"
+            label="Passwort bestätigen"
+          ></v-text-field>
           <v-alert v-if="errorMessage" density="comfortable" class="mb-4" type="error" variant="tonal">
-            {{ errorMessage }}</v-alert
-          >
-          <v-btn variant="tonal" block @click="login">Anmelden</v-btn>
-          <v-btn variant="tonal" block @click="register">Registrieren</v-btn>
+            {{ errorMessage }}
+          </v-alert>
+          <v-btn variant="tonal" :disabled="!isLoginMode && password !== passwordConfirm" block @click="handleSubmit">
+            {{ isLoginMode ? 'Anmelden' : 'Registrieren' }}
+          </v-btn>
+          <v-btn variant="text" block size="small" class="mt-2" @click="isLoginMode = !isLoginMode">
+            {{ isLoginMode ? 'Registrieren' : 'Anmelden' }}
+          </v-btn>
         </v-card-text>
       </v-card>
     </div>
@@ -39,13 +51,27 @@ const { setAuthUser } = useAuthUser()
 
 const email = ref<string>('')
 const password = ref<string>('')
+const passwordConfirm = ref<string>('')
+const isLoginMode = ref(true)
 const errorMessage = ref<string>()
+
+const handleSubmit = async () => {
+  return isLoginMode.value ? login() : register()
+}
 
 const register = async () => {
   errorMessage.value = undefined
   const { error, result } = await tryCatchAsync(() =>
     $client.user.register.mutate({ email: email.value, password: password.value })
   )
+  if (error) {
+    errorMessage.value = error?.message
+  }
+
+  if (result?.success) {
+    setAuthUser({ ...result.user })
+    push({ name: 'index' })
+  }
 }
 
 const login = async () => {

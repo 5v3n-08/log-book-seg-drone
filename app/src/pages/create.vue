@@ -1,19 +1,36 @@
 <template>
   <NuxtLayout name="default" title="Neuer Eintrag">
-    <v-container>
-      <h4>Flugzeiten</h4>
+    <template #bottom>
+      <v-btn :disabled="isLoading" @click="back">
+        <v-icon>mdi-close</v-icon>
+        <span>Abbrechen</span>
+      </v-btn>
+      <v-btn :disabled="isLoadingGeocode" :loading="isLoading" @click="onSubmit">
+        <v-icon>mdi-content-save</v-icon>
+        <span>Speichern</span>
+      </v-btn>
+    </template>
+
+    <v-container class="h-100">
+      <div class="d-flex justify-space-between">
+        <h4>Flugzeiten</h4>
+        <span>{{ flightTime }}</span>
+      </div>
       <v-row class="mt-2">
         <v-col cols="12" class="pa-0">
           <v-text-field
             label="Startdatum"
             density="comfortable"
-            :model-value="format(startDate, 'dd.MM.yyyy')"
-            :active="isStartDateModalOpen"
-            :focused="isStartDateModalOpen"
+            :model-value="format(formData.start, 'dd.MM.yyyy')"
+            :active="modalState.date"
+            :focused="modalState.date"
             prepend-inner-icon="mdi-clock-time-four-outline"
             readonly
-            @click="isStartDateModalOpen = true"
+            @click="modalState.date = true"
           >
+            <v-dialog v-model="modalState.date" activator="parent" width="auto">
+              <v-date-picker v-if="modalState.date" :model-value="formData.start" @update:model-value="onUpdateDate" />
+            </v-dialog>
           </v-text-field>
         </v-col>
       </v-row>
@@ -22,122 +39,199 @@
           <v-text-field
             label="Startzeit"
             density="comfortable"
-            :model-value="format(startDate, 'HH:mm')"
-            :active="isStartTimeModalOpen"
-            :focused="isStartTimeModalOpen"
+            :model-value="format(formData.start, 'HH:mm')"
+            :active="modalState.timeStart"
+            :focused="modalState.timeStart"
             prepend-inner-icon="mdi-clock-time-four-outline"
             readonly
-            @click="isStartTimeModalOpen = true"
+            @click="modalState.timeStart = true"
           >
+            <v-dialog v-model="modalState.timeStart" activator="parent" width="auto">
+              <v-time-picker
+                v-if="modalState.timeStart"
+                :model-value="formData.start"
+                format="24hr"
+                @update:hour="onUpdateTime($event, 'hours')"
+                @update:minute="onUpdateTime($event, 'minutes')"
+              />
+            </v-dialog>
           </v-text-field>
         </v-col>
         <v-col cols="6" class="pa-0">
           <v-text-field
             label="Startzeit"
             density="comfortable"
-            :model-value="format(endDate, 'HH:mm')"
-            :active="isEndTimeModalOpen"
-            :focused="isEndTimeModalOpen"
+            :model-value="format(formData.end, 'HH:mm')"
+            :active="modalState.timeEnd"
+            :focused="modalState.timeEnd"
             prepend-inner-icon="mdi-clock-time-four-outline"
             readonly
-            @click="isEndTimeModalOpen = true"
+            @click="modalState.timeEnd = true"
           >
+            <v-dialog v-model="modalState.timeEnd" activator="parent" width="auto">
+              <v-time-picker
+                v-if="modalState.timeEnd"
+                :model-value="formData.end"
+                format="24hr"
+                @update:hour="onUpdateTime($event, 'hours')"
+                @update:minute="onUpdateTime($event, 'minutes')"
+              />
+            </v-dialog>
           </v-text-field>
         </v-col>
       </v-row>
       <v-divider class="mt-2 mb-4"></v-divider>
       <v-row>
         <v-col>
-          <v-btn-toggle v-model="variant" divided class="w-100" mandatory>
+          <v-btn-toggle v-model="formData.type" divided class="w-100" mandatory>
             <v-btn color="error" class="w-50" variant="tonal" value="training">Übung</v-btn>
-            <v-btn color="error" variant="tonal" class="w-50" value="alarm">Einsatz</v-btn>
+            <v-btn color="error" variant="tonal" class="w-50" value="operation">Einsatz</v-btn>
           </v-btn-toggle>
         </v-col>
       </v-row>
-      <v-row v-if="variant === 'training'">
+      <v-row v-if="formData.type === 'training'">
         <v-col>
-          <v-text-field prepend-inner-icon="mdi-crosshairs-gps" density="comfortable" label="Übungsort"></v-text-field>
+          <v-text-field
+            v-model="formData.location"
+            :loading="isLoadingGeocode"
+            density="comfortable"
+            label="Übungsort"
+            hide-details
+          />
+          <v-btn
+            class="mt-2"
+            block
+            :loading="isLoadingGeocode"
+            variant="text"
+            density="compact"
+            @click="loadGeocodeReverse"
+          >
+            <v-icon size="small" class="mr-2">mdi-crosshairs-gps</v-icon>
+            <small>Position bestimmen</small>
+          </v-btn>
         </v-col>
       </v-row>
       <v-divider class="mt-2 mb-4"></v-divider>
-      <v-chip-group column multiple mandatory>
+      <v-chip-group v-model="formData.options" column multiple mandatory>
         <v-chip color="error" text="Manuell" value="manuel" variant="tonal" filter></v-chip>
         <v-chip color="error" text="Automatisch" value="automatic" variant="tonal" filter></v-chip>
         <v-chip color="error" text="Nachtflug" value="night" variant="tonal" filter></v-chip>
       </v-chip-group>
     </v-container>
-    <v-dialog
-      :model-value="isStartTimeModalOpen || isEndTimeModalOpen"
-      width="auto"
-      @update:model-value="
-        () => {
-          isStartTimeModalOpen = false
-          isEndTimeModalOpen = false
-        }
-      "
-    >
-      <v-time-picker
-        v-if="isStartTimeModalOpen || isEndTimeModalOpen"
-        :model-value="isStartTimeModalOpen ? startDate : endDate"
-        format="24hr"
-        @update:hour="onUpdateTime($event, 'hours')"
-        @update:minute="onUpdateTime($event, 'minutes')"
-      ></v-time-picker>
-    </v-dialog>
-    <v-dialog
-      :model-value="isStartDateModalOpen || isEndDateModalOpen"
-      width="auto"
-      @update:model-value="
-        () => {
-          isStartDateModalOpen = false
-          isEndDateModalOpen = false
-        }
-      "
-    >
-      <v-date-picker
-        v-if="isStartDateModalOpen || isEndDateModalOpen"
-        :model-value="isStartDateModalOpen ? startDate : endDate"
-        @update:model-value="onUpdateDate"
-      ></v-date-picker>
-    </v-dialog>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
 import { VTimePicker } from 'vuetify/labs/VTimePicker'
-import { useGeolocation } from '@vueuse/core'
 import { format, subMinutes } from 'date-fns'
+import { tryCatchAsync } from '~/services/utils/utils.helper'
+
+interface FromDataType {
+  start: Date
+  end: Date
+  type: 'training' | 'operation'
+  options: ('manuel' | 'automatic' | 'night')[]
+  coordinates: { lat: number; lng: number }
+  location: string | undefined
+}
 
 definePageMeta({ layout: false })
 defineComponent({ VTimePicker })
 
 const { back } = useRouter()
-const { coords, error } = useGeolocation()
+const { $client } = useNuxtApp()
 
-const startDate = ref(subMinutes(new Date(), 30))
-const endDate = ref(new Date())
+const modalState = reactive({
+  date: false,
+  timeStart: false,
+  timeEnd: false,
+})
 
-const isStartDateModalOpen = ref(false)
-const isStartTimeModalOpen = ref(false)
-const isEndDateModalOpen = ref(false)
-const isEndTimeModalOpen = ref(false)
-const variant = ref<'training' | 'alarm'>('training')
+const isLoading = ref(false)
+const isLoadingGeocode = ref(false)
+const formData = reactive<FromDataType>({
+  start: subMinutes(new Date(), 30),
+  end: new Date(),
+  type: 'training',
+  options: ['manuel'],
+  coordinates: { lat: 0, lng: 0 },
+  location: undefined,
+})
+
 // const isEndTimeModalOpen = ref(false)
 
 const onUpdateTime = (value: number, type: 'hours' | 'minutes') => {
-  const date = isStartTimeModalOpen.value ? startDate : endDate
-  if (type === 'hours') date.value.setHours(value)
-  if (type === 'minutes') date.value.setMinutes(value)
+  if (modalState.timeStart) {
+    if (type === 'hours') formData.start = new Date(formData.start.setHours(value))
+    if (type === 'minutes') formData.start = new Date(formData.start.setMinutes(value))
+  } else {
+    if (type === 'hours') formData.end = new Date(formData.end.setHours(value))
+    if (type === 'minutes') formData.end = new Date(formData.end.setMinutes(value))
+  }
 }
 
 const onUpdateDate = (value: Date) => {
-  const date = isStartDateModalOpen.value ? startDate : endDate
-  value.setHours(date.value.getHours())
-  value.setMinutes(date.value.getMinutes())
-  date.value = value
+  value.setHours(formData.start.getHours())
+  value.setMinutes(formData.start.getMinutes())
+  formData.start = new Date(value)
+
+  value.setHours(formData.end.getHours())
+  value.setMinutes(formData.end.getMinutes())
+  formData.end = new Date(value)
 }
 
-watch(coords, (value) => console.log(value))
+const onSubmit = async () => {
+  isLoading.value = true
+  const { error } = await tryCatchAsync(() =>
+    $client.logBook.create.mutate({
+      start: formData.start,
+      end: formData.end,
+      type: formData.type,
+      isFlightModeAutomatic: formData.options.includes('automatic'),
+      isFlightModeManuel: formData.options.includes('manuel'),
+      isNightFlight: formData.options.includes('night'),
+      location: formData.location,
+      lat: formData.coordinates.lat > 0 ? formData.coordinates.lat : undefined,
+      lng: formData.coordinates.lng > 0 ? formData.coordinates.lng : undefined,
+    })
+  )
+  if (error) {
+    console.error(error)
+  }
+  isLoading.value = false
+  back()
+}
+
+const loadGeocodeReverse = () => {
+  isLoadingGeocode.value = true
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const { result } = await tryCatchAsync(() =>
+          $client.logBook.location.mutate({
+            lat: coords.latitude,
+            lng: coords.longitude,
+          })
+        )
+
+        if (result) {
+          formData.location = result.address
+          formData.coordinates.lat = result.lat
+          formData.coordinates.lng = result.lng
+        }
+
+        isLoadingGeocode.value = false
+      },
+      (error) => {
+        console.error(error)
+
+        isLoadingGeocode.value = false
+      }
+    )
+  }
+}
+
+const flightTime = computed(() => `${((formData.end.getTime() - formData.start.getTime()) / 1000 / 60).toFixed(0)} min`)
 </script>
 
 <style lang="css" scoped></style>

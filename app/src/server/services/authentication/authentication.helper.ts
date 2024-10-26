@@ -1,8 +1,8 @@
-import { User } from '@prisma/client'
+import type { User } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { DecodedAccessToken, DecodedRefreshToken } from './authentication.declaration'
+import type { DecodedAccessToken, DecodedRefreshToken } from './authentication.declaration'
 import { setCookieWithNode } from '~/server/utils/trpc/context'
 import type { NodeEventContext } from 'h3'
 

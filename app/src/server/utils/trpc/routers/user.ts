@@ -9,6 +9,10 @@ export const userRouter = router({
   current: protectedProcedure.query(({ ctx }) => {
     return prisma.user.findFirst({ where: { id: ctx.user.id } })
   }),
+  logout: protectedProcedure.query(({ ctx }) => {
+    ctx.setAuthenticationCookies('', '')
+    return { success: true }
+  }),
   login: publicProcedure
     .input(
       z.object({
@@ -28,7 +32,7 @@ export const userRouter = router({
         password: z.string().length(4),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       if (await prisma.user.findFirst({ where: { email: input.email } })) {
         throw new Error('User already exists!')
       }
@@ -40,6 +44,9 @@ export const userRouter = router({
         },
       })
 
-      return user
+      const { accessToken, refreshToken } = await $auth.login(input.email, input.password)
+      ctx.setAuthenticationCookies(accessToken, refreshToken)
+
+      return { success: true, user }
     }),
 })

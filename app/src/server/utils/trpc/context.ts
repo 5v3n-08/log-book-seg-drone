@@ -1,11 +1,12 @@
-import { User } from '@prisma/client'
-import { TRPCError, type inferAsyncReturnType } from '@trpc/server'
-import cookie, { CookieSerializeOptions } from 'cookie'
-import { NodeEventContext, type H3Event, type NodeIncomingMessage } from 'h3'
+import type { User } from '@prisma/client'
+import type { inferAsyncReturnType } from '@trpc/server'
+import type { SerializeOptions } from 'cookie'
+import cookie from 'cookie'
+import type { NodeEventContext, H3Event, NodeIncomingMessage } from 'h3'
 import { decodeAccessToken, setAuthenticationCookies } from '~/server/services/authentication/authentication.helper'
 import { AuthenticationService } from '~/server/services/authentication/authentication.service'
-import { NoRefreshTokenError, UserBlockedError } from '~/server/services/error/error.helper'
-import { tryCatch, tryCatchAsync } from '~/services/utils/utils.helper'
+import { UserBlockedError } from '~/server/services/error/error.helper'
+import { tryCatchAsync } from '~/services/utils/utils.helper'
 
 export type Context = inferAsyncReturnType<typeof createContext>
 /**
@@ -60,19 +61,13 @@ const handleAuthenticatedUserCheck = async (node: NodeEventContext): Promise<Use
 }
 
 const getCookie = (req: NodeIncomingMessage): { accessToken?: string; refreshToken?: string } | undefined => {
-  // eslint-disable-line
   if (!req.headers.cookie) {
     return
   }
   return cookie.parse(req.headers.cookie)
 }
 
-export const setCookieWithNode = (
-  node: NodeEventContext,
-  key: string,
-  value: string,
-  options?: CookieSerializeOptions
-) => {
+export const setCookieWithNode = (node: NodeEventContext, key: string, value: string, options?: SerializeOptions) => {
   const serializedCookie = cookie.serialize(key, value, options)
   node.res.appendHeader('set-cookie', serializedCookie)
 }

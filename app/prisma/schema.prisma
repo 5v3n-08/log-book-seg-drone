@@ -43,16 +43,17 @@ model LogBook {
   id                       String   @id @default(uuid())
   start                    DateTime
   end                      DateTime
-  operation                String
+  operation_id                String?
+  operation_name        String?
   is_flight_mode_manuel     Boolean  @default(false)
   is_flight_mode_automatic  Boolean  @default(false)
   is_night_flight           Boolean  @default(false)
   device_id                String
   type                     String
-  location                 String
+  location                 String?
   lat                      Int?
   lng                      Int?
-  notes                    String
+  notes                    String?
   user_id                  String
   updated_at               DateTime @updatedAt
   created_at               DateTime @default(now())
