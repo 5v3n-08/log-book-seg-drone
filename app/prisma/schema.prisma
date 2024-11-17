@@ -2,6 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -41,13 +45,11 @@ model Device {
 
 model LogBook {
   id                       String   @id @default(uuid())
-  start                    DateTime
-  end                      DateTime
-  operation_id                String?
-  operation_name        String?
-  is_flight_mode_manuel     Boolean  @default(false)
-  is_flight_mode_automatic  Boolean  @default(false)
-  is_night_flight           Boolean  @default(false)
+  operation_id             String?
+  operation_name           String?
+  is_flight_mode_manuel    Boolean  @default(false)
+  is_flight_mode_automatic Boolean  @default(false)
+  is_night_flight          Boolean  @default(false)
   device_id                String
   type                     String
   location                 String?
@@ -57,6 +59,8 @@ model LogBook {
   user_id                  String
   updated_at               DateTime @updatedAt
   created_at               DateTime @default(now())
+  /// [PrismaLogBookFlights]
+  flights                  Json
   User                     User     @relation(fields: [user_id], references: [id])
   Device                   Device   @relation(fields: [device_id], references: [id])
 }

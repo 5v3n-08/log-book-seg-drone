@@ -13,6 +13,34 @@ export const userRouter = router({
     ctx.setAuthenticationCookies('', '')
     return { success: true }
   }),
+  statistic: protectedProcedure.query(async ({ ctx }) => {
+    let timeFlight = 0
+    let timeNightFlight = 0
+
+    const logs = await prisma.logBook.findMany({ where: { user_id: ctx.user.id } })
+    for (const log of logs) {
+      let time = 0
+      for (const { start, end } of log.flights) {
+        time += new Date(end).getTime() - new Date(start).getTime()
+      }
+      timeFlight += time
+      if (log.is_night_flight) {
+        timeNightFlight += time
+      }
+    }
+
+    const timeFligtMax = 1000 * 60 * 60 * 5 // 5 Stunden
+    const timeNightFligtMax = 1000 * 60 * 60 * 2 // 2 Stunden
+
+    return {
+      success: true,
+      flightTime: { value: msToTime(timeFlight), percent: ((timeFlight * 100) / timeFligtMax).toFixed(0) },
+      nightFlightTime: {
+        value: msToTime(timeNightFlight),
+        percent: ((timeNightFlight * 100) / timeNightFligtMax).toFixed(0),
+      },
+    }
+  }),
   login: publicProcedure
     .input(
       z.object({
@@ -50,3 +78,13 @@ export const userRouter = router({
       return { success: true, user }
     }),
 })
+
+const msToTime = (duration: number) => {
+  const minutes = Math.floor((duration / (1000 * 60)) % 60)
+  const hours = Math.floor((duration / (1000 * 60 * 60)) % 24)
+
+  const hoursStr = hours < 10 ? '0' + hours : hours
+  const minutesStr = minutes < 10 ? '0' + minutes : minutes
+
+  return hoursStr + ':' + minutesStr
+}
