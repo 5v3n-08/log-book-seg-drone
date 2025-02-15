@@ -35,7 +35,7 @@ services:
     working_dir: /var/www/html/app
     volumes:
       - ./app:/var/www/html/app
-    command: sh -c "node .output/server/index.mjs"
+    command: sh -c "npm run build && node .output/server/index.mjs"
     stdin_open: true
     tty: true
     networks:
