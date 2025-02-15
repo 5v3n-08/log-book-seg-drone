@@ -11,6 +11,7 @@ services:
       - ./config/nginx/auth:/etc/nginx/auth
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
   app:
+    restart: unless-stopped
     ports:
       - "24678:24678"
     user: node
